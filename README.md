@@ -9,10 +9,9 @@ The project is expected to be delivered as a GitHub (or any other public git
 hosting) repository URL. Please **DO NOT fork** this project.
 
 # Bonus
-Feel free to add one additional features for bonus points, here are some suggestions:
+Feel free to add these two additional features for bonus points, anything else added will not be reviewed.
 * Fuzzy Search on description and title using ElasticSearch (service is already installed)
 * OpenAPI documentation of APIs
-* Integration tests
 
 # Provided boilerplate
 https://github.com/eduard-wu/fullstack-nodejs-assessment
