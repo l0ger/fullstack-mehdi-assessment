@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
 import { Cocktails } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
 
@@ -9,6 +9,15 @@ export class CocktailsController {
   @Get()
   searchCocktails() : Promise<Cocktails[]> {
     return this.cocktailsService.findAll();
+  }
+
+  @Get(':id')
+  async getCocktail(@Param('id') id: string): Promise<Cocktails> {
+    const cocktail = await this.cocktailsService.findOne(+id);
+    if (!cocktail) {
+      throw new NotFoundException(`Cocktail ${id} not found`);
+    }
+    return cocktail;
   }
 
   @Post()
