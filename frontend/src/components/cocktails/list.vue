@@ -2,7 +2,7 @@
   <div>
     <h1>Cocktails List</h1>
     <div v-if="loading">Loading...</div>
-    <div v-else-if="error">{{ error }}</div>
+    <ErrorMessage v-else-if="error" :message="error" />
     <div v-else>
         <label for="search">Search by description:</label>
        <input type="text" id="search" v-model="search" />
@@ -18,9 +18,12 @@
 
 <script>
 import { ref, watch, onMounted } from 'vue';
+import { API_BASE_URL } from '@/api';
+import ErrorMessage from '@/components/error-message.vue';
 
 export default {
-  name: 'NewCocktail',
+  name: 'CocktailList',
+  components: { ErrorMessage },
   setup() {
     const data = ref([]);
     const loading = ref(true);
@@ -31,8 +34,8 @@ export default {
     const fetchCocktails = async (query) => {
       try {
         const url = query
-          ? `http://localhost:3000/cocktails?search=${encodeURIComponent(query)}`
-          : 'http://localhost:3000/cocktails';
+          ? `${API_BASE_URL}/cocktails?search=${encodeURIComponent(query)}`
+          : `${API_BASE_URL}/cocktails`;
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

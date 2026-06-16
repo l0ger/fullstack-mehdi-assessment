@@ -15,13 +15,17 @@
       </div>
       <button type="submit">Submit</button>
     </form>
-    <p v-if="error">{{ error }}</p>
+    <ErrorMessage :message="error" />
   </div>
 </template>
 
 <script>
+import { API_BASE_URL } from '@/api';
+import ErrorMessage from '@/components/error-message.vue';
+
 export default {
-  name: 'ListCocktail',
+  name: 'CocktailNew',
+  components: { ErrorMessage },
   data() {
     return {
       form: {
@@ -36,17 +40,22 @@ export default {
     async submitForm() {
       this.error = null;
       try {
-        const response = await fetch('http://localhost:3000/cocktails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.form)
-        });
+        let response;
+        try {
+          response = await fetch(`${API_BASE_URL}/cocktails`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.form)
+          });
+        } catch {
+          throw new Error('Could not reach the server. Please check your connection and try again.');
+        }
 
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          throw new Error(body.message || 'Network response was not ok');
+          throw new Error(body.message || 'Could not add the cocktail. Please try again.');
         }
 
         const data = await response.json();
