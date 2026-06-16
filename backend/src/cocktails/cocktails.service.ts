@@ -6,6 +6,11 @@ import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { ElasticSearch } from '../elasticsearch.service';
 
 const COCKTAILS_INDEX = 'cocktails';
+/**
+ * Keep in sync with the index mapping in onModuleInit() and the
+ * CocktailDocument shape — all three must list the same fields.
+ */
+const COCKTAILS_SEARCH_FIELDS = ['title^2', 'description'];
 const POSTGRES_UNIQUE_VIOLATION = '23505';
 
 interface CocktailDocument extends Record<string, unknown> {
@@ -46,7 +51,7 @@ export class CocktailsService implements OnModuleInit {
     const ids = await this.elasticSearch.search<CocktailDocument>(
       COCKTAILS_INDEX,
       query,
-      ['title^2', 'description'],
+      COCKTAILS_SEARCH_FIELDS,
     );
     if (ids.length === 0) {
       return [];
@@ -56,7 +61,8 @@ export class CocktailsService implements OnModuleInit {
 
   async create(cocktail: CreateCocktailDto) {
     const result = await this.cocktailsRepository.insert(cocktail).catch((error) => {
-      if (error instanceof QueryFailedError && (error as any).code === POSTGRES_UNIQUE_VIOLATION) {
+      const driverError = error instanceof QueryFailedError ? (error.driverError as { code?: string }) : null;
+      if (driverError?.code === POSTGRES_UNIQUE_VIOLATION) {
         throw new ConflictException(`A cocktail titled "${cocktail.title}" already exists.`);
       }
       throw error;

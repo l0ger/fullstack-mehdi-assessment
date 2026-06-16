@@ -40,8 +40,8 @@ describe('CocktailsService', () => {
     });
 
     it('throws ConflictException on a unique-title violation', async () => {
-      const error = new QueryFailedError('insert', [], new Error('duplicate key'));
-      (error as any).code = '23505';
+      const driverError = Object.assign(new Error('duplicate key'), { code: '23505' });
+      const error = new QueryFailedError('insert', [], driverError);
       repository.insert.mockRejectedValue(error);
 
       await expect(service.create(cocktail)).rejects.toBeInstanceOf(ConflictException);

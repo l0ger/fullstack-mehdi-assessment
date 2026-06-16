@@ -57,8 +57,8 @@ describe('Cocktails (e2e)', () => {
     });
 
     it('returns 409 when the title already exists', async () => {
-      const dbError = new QueryFailedError('insert', [], new Error('duplicate key value'));
-      (dbError as any).code = '23505';
+      const driverError = Object.assign(new Error('duplicate key value'), { code: '23505' });
+      const dbError = new QueryFailedError('insert', [], driverError);
       repository.insert.mockRejectedValue(dbError);
 
       const response = await request(app.getHttpServer())
