@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, QueryFailedError, Repository } from 'typeorm';
 import { Cocktails } from './cocktails.entity';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
-import { ElasticSearch } from '../elasticsearch.service';
+import { ElasticSearch } from '../common/elasticsearch/elasticsearch.service';
 
 const COCKTAILS_INDEX = 'cocktails';
 /**

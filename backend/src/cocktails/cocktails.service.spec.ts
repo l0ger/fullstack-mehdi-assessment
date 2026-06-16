@@ -5,7 +5,7 @@ import { QueryFailedError } from 'typeorm';
 import { Cocktails } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
 import { CreateCocktailDto } from './dto/create-cocktail.dto';
-import { ElasticSearch } from '../elasticsearch.service';
+import { ElasticSearch } from '../common/elasticsearch/elasticsearch.service';
 
 describe('CocktailsService', () => {
   let service: CocktailsService;

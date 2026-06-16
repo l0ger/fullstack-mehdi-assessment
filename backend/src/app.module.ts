@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cocktails } from './cocktails/cocktails.entity';
 import { CocktailsModule } from './cocktails/cocktails.module';
-import { ElasticsearchModule } from './elasticsearch.module';
+import { ElasticsearchModule } from './common/elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [

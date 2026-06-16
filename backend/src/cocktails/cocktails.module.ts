@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CocktailsService } from './cocktails.service';
 import { CocktailsController } from './cocktails.controller';
 import { Cocktails } from './cocktails.entity';
-import { ElasticsearchModule } from '../elasticsearch.module';
+import { ElasticsearchModule } from '../common/elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cocktails]), ElasticsearchModule],

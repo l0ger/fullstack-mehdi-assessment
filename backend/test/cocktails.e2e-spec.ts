@@ -5,7 +5,7 @@ import * as request from 'supertest';
 import { QueryFailedError } from 'typeorm';
 import { Cocktails } from '../src/cocktails/cocktails.entity';
 import { CocktailsModule } from '../src/cocktails/cocktails.module';
-import { ElasticSearch } from '../src/elasticsearch.service';
+import { ElasticSearch } from '../src/common/elasticsearch/elasticsearch.service';
 
 describe('Cocktails (e2e)', () => {
   let app: INestApplication;
