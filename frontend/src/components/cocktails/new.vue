@@ -15,6 +15,7 @@
       </div>
       <button type="submit">Submit</button>
     </form>
+    <p v-if="error">{{ error }}</p>
   </div>
 </template>
 
@@ -27,11 +28,13 @@ export default {
         title: '',
         price: '',
         description: ''
-      }
+      },
+      error: null
     };
   },
   methods: {
     async submitForm() {
+      this.error = null;
       try {
         const response = await fetch('http://localhost:3000/cocktails', {
           method: 'POST',
@@ -42,7 +45,8 @@ export default {
         });
 
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          const body = await response.json().catch(() => ({}));
+          throw new Error(body.message || 'Network response was not ok');
         }
 
         const data = await response.json();
@@ -53,7 +57,7 @@ export default {
         this.form.description = '';
       } catch (error) {
         console.error('There was an error submitting the form:', error);
-        // Handle the error (e.g., show an error message)
+        this.error = error.message;
       }
     }
   }

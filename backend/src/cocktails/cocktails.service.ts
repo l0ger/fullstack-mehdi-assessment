@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Cocktails } from './cocktails.entity';
 
 @Injectable()
@@ -19,7 +19,12 @@ export class CocktailsService {
   }
 
   create(cocktail: Cocktails) {
-    return this.usersRepository.insert(cocktail);
+    return this.usersRepository.insert(cocktail).catch((error) => {
+      if (error instanceof QueryFailedError && (error as any).code === '23505') {
+        throw new ConflictException(`A cocktail titled "${cocktail.title}" already exists.`);
+      }
+      throw error;
+    });
   }
 
 }
