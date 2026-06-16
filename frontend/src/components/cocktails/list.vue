@@ -5,10 +5,10 @@
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
         <label for="search">Search by description:</label>
-       <input type="text" id="search" />
+       <input type="text" id="search" v-model="search" />
       <ul>
-        <li v-for="item in data" :key="item.id">
-            <span style="font-weight: bold">{{ item.title }}</span> price: {{ item.price }}€
+        <li v-for="item in filteredData" :key="item.id">
+            <router-link :to="`/cocktails/${item.id}`" style="font-weight: bold">{{ item.title }}</router-link> price: {{ item.price }}€
         </li>
       </ul>
     </div>
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 export default {
   name: 'NewCocktail',
@@ -25,6 +25,7 @@ export default {
     const data = ref([]);
     const loading = ref(true);
     const error = ref(null);
+    const search = ref('');
 
     const fetchData = async () => {
       try {
@@ -43,10 +44,18 @@ export default {
 
     onMounted(fetchData);
 
+    const filteredData = computed(() =>
+      data.value.filter((item) =>
+        item.description?.toLowerCase().includes(search.value.toLowerCase())
+      )
+    );
+
     return {
       data,
       loading,
       error,
+      search,
+      filteredData,
     };
   },
 };
