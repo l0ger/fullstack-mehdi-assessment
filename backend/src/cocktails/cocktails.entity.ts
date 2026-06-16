@@ -1,5 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ValueTransformer } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+
+/**
+ * Postgres returns DECIMAL columns as strings (to avoid float precision
+ * loss); without this, TypeORM falls back to its default Number->integer
+ * mapping and silently truncates e.g. "4.50" to 4.
+ */
+export const decimalTransformer: ValueTransformer = {
+  to: (value: number) => value,
+  from: (value: string) => parseFloat(value),
+};
 
 @Entity()
 export class Cocktails {
@@ -16,6 +26,6 @@ export class Cocktails {
   description: string;
 
   @ApiProperty()
-  @Column()
+  @Column('decimal', { precision: 5, scale: 2, transformer: decimalTransformer })
   price: number;
 }

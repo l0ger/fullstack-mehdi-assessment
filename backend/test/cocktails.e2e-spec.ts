@@ -100,5 +100,10 @@ describe('Cocktails (e2e)', () => {
 
       await request(app.getHttpServer()).get('/cocktails/999999').expect(404);
     });
+
+    it('returns 400 for a non-numeric id', async () => {
+      await request(app.getHttpServer()).get('/cocktails/not-a-number').expect(400);
+      expect(repository.findOneBy).not.toHaveBeenCalled();
+    });
   });
 });

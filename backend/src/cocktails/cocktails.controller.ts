@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Cocktails } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
@@ -24,8 +24,8 @@ export class CocktailsController {
   @ApiOperation({ summary: 'Get a single cocktail by id' })
   @ApiResponse({ status: 200, type: Cocktails })
   @ApiResponse({ status: 404, description: 'No cocktail with that id' })
-  async getCocktail(@Param('id') id: string): Promise<Cocktails> {
-    const cocktail = await this.cocktailsService.findOne(+id);
+  async getCocktail(@Param('id', ParseIntPipe) id: number): Promise<Cocktails> {
+    const cocktail = await this.cocktailsService.findOne(id);
     if (!cocktail) {
       throw new NotFoundException(`Cocktail ${id} not found`);
     }
