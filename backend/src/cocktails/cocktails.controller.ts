@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { Cocktails } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
 
@@ -7,7 +7,10 @@ export class CocktailsController {
   constructor(private readonly cocktailsService: CocktailsService) {}
 
   @Get()
-  searchCocktails() : Promise<Cocktails[]> {
+  searchCocktails(@Query('search') search?: string) : Promise<Cocktails[]> {
+    if (search) {
+      return this.cocktailsService.search(search);
+    }
     return this.cocktailsService.findAll();
   }
 

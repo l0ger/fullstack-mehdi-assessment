@@ -5,19 +5,28 @@ import * as request from 'supertest';
 import { QueryFailedError } from 'typeorm';
 import { Cocktails } from '../src/cocktails/cocktails.entity';
 import { CocktailsModule } from '../src/cocktails/cocktails.module';
+import { ElasticSearch } from '../src/elasticsearch.service';
 
 describe('Cocktails (e2e)', () => {
   let app: INestApplication;
   let repository: { find: jest.Mock; findOneBy: jest.Mock; insert: jest.Mock };
+  let elasticSearch: { ensureIndex: jest.Mock; indexCocktail: jest.Mock; search: jest.Mock };
 
   beforeEach(async () => {
-    repository = { find: jest.fn(), findOneBy: jest.fn(), insert: jest.fn() };
+    repository = { find: jest.fn().mockResolvedValue([]), findOneBy: jest.fn(), insert: jest.fn() };
+    elasticSearch = {
+      ensureIndex: jest.fn().mockResolvedValue(undefined),
+      indexCocktail: jest.fn().mockResolvedValue(undefined),
+      search: jest.fn(),
+    };
 
     const moduleRef = await Test.createTestingModule({
       imports: [CocktailsModule],
     })
       .overrideProvider(getRepositoryToken(Cocktails))
       .useValue(repository)
+      .overrideProvider(ElasticSearch)
+      .useValue(elasticSearch)
       .compile();
 
     app = moduleRef.createNestApplication();
@@ -58,6 +67,23 @@ describe('Cocktails (e2e)', () => {
         .expect(409);
 
       expect(response.body.message).toMatch(/already exists/);
+    });
+  });
+
+  describe('GET /cocktails?search=', () => {
+    it('returns cocktails matching the Elasticsearch fuzzy search', async () => {
+      const matches = [{ id: 6, title: 'Nojito', description: 'minty', price: 4.5 }];
+      elasticSearch.search.mockResolvedValue([6]);
+      repository.find.mockResolvedValue(matches);
+
+      await request(app.getHttpServer()).get('/cocktails?search=mojito').expect(200, matches);
+      expect(elasticSearch.search).toHaveBeenCalledWith('mojito');
+    });
+
+    it('returns an empty array when nothing matches', async () => {
+      elasticSearch.search.mockResolvedValue([]);
+
+      await request(app.getHttpServer()).get('/cocktails?search=xyz').expect(200, []);
     });
   });
 
