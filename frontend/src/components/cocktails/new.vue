@@ -7,7 +7,7 @@
       </div>
       <div>
         <label for="price">Price:</label>
-        <input type="number" v-model="form.price" id="price" required>
+        <input type="number" v-model.number="form.price" id="price" min="0" max="999.99" step="0.01" required>
       </div>
       <div>
         <label for="description">Description:</label>
@@ -55,7 +55,8 @@ export default {
 
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          throw new Error(body.message || 'Could not add the cocktail. Please try again.');
+          const message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+          throw new Error(message || 'Could not add the cocktail. Please try again.');
         }
 
         const data = await response.json();
