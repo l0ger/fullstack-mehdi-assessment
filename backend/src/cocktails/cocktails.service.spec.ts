@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { QueryFailedError } from 'typeorm';
 import { Cocktails } from './cocktails.entity';
 import { CocktailsService } from './cocktails.service';
+import { CreateCocktailDto } from './dto/create-cocktail.dto';
 import { ElasticSearch } from '../elasticsearch.service';
 
 describe('CocktailsService', () => {
@@ -26,7 +27,7 @@ describe('CocktailsService', () => {
   });
 
   describe('create', () => {
-    const cocktail = { title: 'Nojito', description: 'minty', price: 4.5 } as Cocktails;
+    const cocktail: CreateCocktailDto = { title: 'Nojito', description: 'minty', price: 4.5 };
 
     it('inserts the cocktail and indexes it in Elasticsearch on success', async () => {
       repository.insert.mockResolvedValue({ identifiers: [{ id: 1 }] });

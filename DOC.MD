@@ -12,5 +12,6 @@ Both `backend` and `frontend` run with hot-reload (`nest start --watch` / `vue-c
 
 - Frontend: http://localhost:8080
 - Backend: http://localhost:3000
+- API docs (Swagger UI): http://localhost:3000/api
 - Elasticsearch: http://localhost:9200
 - Postgres: localhost:5432
