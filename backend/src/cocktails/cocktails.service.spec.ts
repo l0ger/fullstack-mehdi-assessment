@@ -10,11 +10,11 @@ import { ElasticSearch } from '../elasticsearch.service';
 describe('CocktailsService', () => {
   let service: CocktailsService;
   let repository: { insert: jest.Mock; find: jest.Mock };
-  let elasticSearch: { ensureIndex: jest.Mock; indexCocktail: jest.Mock; search: jest.Mock };
+  let elasticSearch: { ensureIndex: jest.Mock; indexDocument: jest.Mock; search: jest.Mock };
 
   beforeEach(async () => {
     repository = { insert: jest.fn(), find: jest.fn() };
-    elasticSearch = { ensureIndex: jest.fn(), indexCocktail: jest.fn(), search: jest.fn() };
+    elasticSearch = { ensureIndex: jest.fn(), indexDocument: jest.fn(), search: jest.fn() };
     const moduleRef = await Test.createTestingModule({
       providers: [
         CocktailsService,
@@ -33,7 +33,7 @@ describe('CocktailsService', () => {
       repository.insert.mockResolvedValue({ identifiers: [{ id: 1 }] });
 
       await expect(service.create(cocktail)).resolves.toEqual({ identifiers: [{ id: 1 }] });
-      expect(elasticSearch.indexCocktail).toHaveBeenCalledWith(1, {
+      expect(elasticSearch.indexDocument).toHaveBeenCalledWith('cocktails', 1, {
         title: 'Nojito',
         description: 'minty',
       });
@@ -45,7 +45,7 @@ describe('CocktailsService', () => {
       repository.insert.mockRejectedValue(error);
 
       await expect(service.create(cocktail)).rejects.toBeInstanceOf(ConflictException);
-      expect(elasticSearch.indexCocktail).not.toHaveBeenCalled();
+      expect(elasticSearch.indexDocument).not.toHaveBeenCalled();
     });
 
     it('rethrows unrelated errors', async () => {
@@ -84,11 +84,11 @@ describe('CocktailsService', () => {
       await service.onModuleInit();
 
       expect(elasticSearch.ensureIndex).toHaveBeenCalled();
-      expect(elasticSearch.indexCocktail).toHaveBeenCalledWith(1, {
+      expect(elasticSearch.indexDocument).toHaveBeenCalledWith('cocktails', 1, {
         title: 'Virgin Mojito',
         description: 'minty',
       });
-      expect(elasticSearch.indexCocktail).toHaveBeenCalledWith(2, {
+      expect(elasticSearch.indexDocument).toHaveBeenCalledWith('cocktails', 2, {
         title: 'Shirley Temple',
         description: 'fizzy',
       });

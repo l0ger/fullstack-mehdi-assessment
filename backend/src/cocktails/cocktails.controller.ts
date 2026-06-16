@@ -37,9 +37,7 @@ export class CocktailsController {
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 409, description: 'A cocktail with that title already exists' })
   async newCocktail(@Body() cocktail: CreateCocktailDto) {
-    console.log("info: creating cocktail", cocktail)
-    const res = await this.cocktailsService.create(cocktail);
-    console.log("res", res);
+    await this.cocktailsService.create(cocktail);
     return true;
   }
 }

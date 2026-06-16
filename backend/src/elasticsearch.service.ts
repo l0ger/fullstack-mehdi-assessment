@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 
-import { Client as EsClient } from '@elastic/elasticsearch';
-
-export const COCKTAILS_INDEX = 'cocktails';
-
-interface CocktailDocument {
-  title: string;
-  description: string;
-}
+import { Client as EsClient, estypes } from '@elastic/elasticsearch';
 
 @Injectable()
 export class ElasticSearch {
@@ -30,36 +23,32 @@ export class ElasticSearch {
     }
   }
 
-  async ensureIndex() {
-    const exists = await this.client.indices.exists({ index: COCKTAILS_INDEX });
+  async ensureIndex(index: string, mappings: estypes.MappingTypeMapping) {
+    const exists = await this.client.indices.exists({ index });
     if (!exists) {
-      await this.client.indices.create({
-        index: COCKTAILS_INDEX,
-        mappings: {
-          properties: {
-            title: { type: 'text' },
-            description: { type: 'text' },
-          },
-        },
-      });
+      await this.client.indices.create({ index, mappings });
     }
   }
 
-  indexCocktail(id: number, document: CocktailDocument) {
+  indexDocument<TDocument extends Record<string, unknown>>(index: string, id: number, document: TDocument) {
     return this.client.index({
-      index: COCKTAILS_INDEX,
+      index,
       id: String(id),
       document,
     });
   }
 
-  async search(query: string): Promise<number[]> {
-    const result = await this.client.search<CocktailDocument>({
-      index: COCKTAILS_INDEX,
+  async search<TDocument extends Record<string, unknown>>(
+    index: string,
+    query: string,
+    fields: string[],
+  ): Promise<number[]> {
+    const result = await this.client.search<TDocument>({
+      index,
       query: {
         multi_match: {
           query,
-          fields: ['title^2', 'description'],
+          fields,
           fuzziness: 'AUTO',
         },
       },

@@ -10,13 +10,13 @@ import { ElasticSearch } from '../src/elasticsearch.service';
 describe('Cocktails (e2e)', () => {
   let app: INestApplication;
   let repository: { find: jest.Mock; findOneBy: jest.Mock; insert: jest.Mock };
-  let elasticSearch: { ensureIndex: jest.Mock; indexCocktail: jest.Mock; search: jest.Mock };
+  let elasticSearch: { ensureIndex: jest.Mock; indexDocument: jest.Mock; search: jest.Mock };
 
   beforeEach(async () => {
     repository = { find: jest.fn().mockResolvedValue([]), findOneBy: jest.fn(), insert: jest.fn() };
     elasticSearch = {
       ensureIndex: jest.fn().mockResolvedValue(undefined),
-      indexCocktail: jest.fn().mockResolvedValue(undefined),
+      indexDocument: jest.fn().mockResolvedValue(undefined),
       search: jest.fn(),
     };
 
@@ -77,7 +77,7 @@ describe('Cocktails (e2e)', () => {
       repository.find.mockResolvedValue(matches);
 
       await request(app.getHttpServer()).get('/cocktails?search=mojito').expect(200, matches);
-      expect(elasticSearch.search).toHaveBeenCalledWith('mojito');
+      expect(elasticSearch.search).toHaveBeenCalledWith('cocktails', 'mojito', ['title^2', 'description']);
     });
 
     it('returns an empty array when nothing matches', async () => {
