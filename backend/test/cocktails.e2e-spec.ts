@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
@@ -30,6 +30,7 @@ describe('Cocktails (e2e)', () => {
       .compile();
 
     app = moduleRef.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
   });
 
@@ -67,6 +68,46 @@ describe('Cocktails (e2e)', () => {
         .expect(409);
 
       expect(response.body.message).toMatch(/already exists/);
+    });
+
+    it('coerces a numeric string price into a number', async () => {
+      repository.insert.mockResolvedValue({ identifiers: [{ id: 1 }] });
+
+      await request(app.getHttpServer())
+        .post('/cocktails')
+        .send({ title: 'Cinderella', description: 'fruity', price: '4.5' })
+        .expect(201, 'true');
+
+      expect(repository.insert).toHaveBeenCalledWith(
+        expect.objectContaining({ price: 4.5 }),
+      );
+    });
+
+    it('returns 400 when a required field is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/cocktails')
+        .send({ description: 'fruity', price: 4 })
+        .expect(400);
+
+      expect(repository.insert).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 for a non-numeric price', async () => {
+      await request(app.getHttpServer())
+        .post('/cocktails')
+        .send({ title: 'Cinderella', description: 'fruity', price: 'free' })
+        .expect(400);
+
+      expect(repository.insert).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 for a negative price', async () => {
+      await request(app.getHttpServer())
+        .post('/cocktails')
+        .send({ title: 'Cinderella', description: 'fruity', price: -1 })
+        .expect(400);
+
+      expect(repository.insert).not.toHaveBeenCalled();
     });
   });
 
